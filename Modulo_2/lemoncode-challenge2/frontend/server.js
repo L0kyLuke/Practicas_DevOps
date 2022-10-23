@@ -3,7 +3,7 @@ const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch
 const express = require('express'),
     app = express();
 
-const LOCAL = 'http://localhost:5000/api/topics';
+const LOCAL = 'http://topics-api:8080/api/topics';
 
 app.set('view engine', 'ejs');
 

@@ -1,11 +1,7 @@
-FROM node:16
+  FROM mcr.microsoft.com/dotnet/sdk:3.1
 
-WORKDIR /app
+  WORKDIR /app
 
-COPY ["package.json", "package-lock.json*", "./"]
+  COPY . ./
 
-RUN npm install
-
-COPY . .
-
-CMD npm start
+  CMD ["dotnet", "run"]
