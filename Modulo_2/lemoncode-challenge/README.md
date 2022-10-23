@@ -46,11 +46,17 @@ const LOCAL = 'http://topics-api:5000/api/topics';
 
 ### Creación del Dockerfile para el frontend de Node.js
 FROM node:16
+
 WORKDIR /app
+
 COPY ["package.json", "package-lock.json*", "./"]
+
 RUN npm install
+
 COPY . .
+
 EXPOSE 3000
+
 CMD npm start
 
 ### Creación de la imagen del frontend
