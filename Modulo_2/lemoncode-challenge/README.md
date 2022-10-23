@@ -1,4 +1,4 @@
-# Ejercicio 1
+# Ejercicio 1 (NOTA: No funciona el Front)
 ### Creación de la red
 docker network create lemoncode-challenge
 
@@ -65,6 +65,4 @@ docker build -t frontend .
 ### Ejecución del contenedor del frontend
 docker run -d --name myfrontend  -p 8080:3000 -e API_URI=http://topics-api:5000/api/topics --network lemoncode-challenge frontend
 
-### Nota: El front no llega a funcionar
-
-# Ejercicio 2 (a la espera de solucionar el 1)
+# Ejercicio 2 (NOTA: a la espera de solucionar el 1)
