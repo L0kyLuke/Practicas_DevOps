@@ -12,7 +12,7 @@ app.get('/', async (req, res) => {
     //Recuperar topics de la API
     const response = await fetch(process.env.API_URI || LOCAL);
     const topics = await response.json();
-console.log(topics);
+
     res.render('index', { topics });
 
 });

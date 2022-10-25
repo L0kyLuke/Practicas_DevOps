@@ -1,4 +1,4 @@
-# Ejercicio 1 (NOTA: No funciona el Front)
+# Ejercicio 1
 ## Creación de la red
 ```bash
 docker network create lemoncode-challenge
@@ -50,12 +50,15 @@ EXPOSE 5000
 CMD npm start
 ```
 ### Creación de la imagen del backend
+```bash
 docker build -t backend .
-
+```
 ### Ejecución del contenedor del backend
+```bash
 docker run -d --name topics-api --network lemoncode-challenge backend
-
+```
 ### Se agregan registros a la base de datos a través del backend
+```bash
 docker exec -it topics-api bash
 
 curl -d '{"Name":"Devops"}' -H "Content-Type: application/json" -X POST http://localhost:5000/api/topics
@@ -65,8 +68,11 @@ curl -d '{"Name":"K8s"}' -H "Content-Type: application/json" -X POST http://loca
 curl -d '{"Name":"Docker"}' -H "Content-Type: application/json" -X POST http://localhost:5000/api/topics
 
 curl -d '{"Name":"Prometheus"}' -H "Content-Type: application/json" -X POST http://localhost:5000/api/topics
+```
+## Contenedor del Frontend
 
 ### Creación del Dockerfile para el frontend de Node.js
+```Dockerfile
 FROM node:16.18.0-alpine
 
 WORKDIR /app
@@ -80,11 +86,13 @@ COPY . .
 EXPOSE 3000
 
 CMD npm start
-
+```
 ### Creación de la imagen del frontend
+```bash
 docker build -t frontend .
-
+```
 ### Ejecución del contenedor del frontend
+```bash
 docker run -d --name myfrontend  -p 8080:3000 -e API_URI=http://topics-api:5000/api/topics --network lemoncode-challenge frontend
-
+```
 # Ejercicio 2 (NOTA: a la espera de solucionar el 1)
