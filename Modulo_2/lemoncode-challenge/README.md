@@ -33,21 +33,51 @@ export default {
     }
 }
 ```
-### Creación del Dockerfile para el backend de Node.js
+
+### Modificación del fichero Properties/launchSettings.json del backend
+```diff
+{
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+-      "applicationUrl": "http://localhost:49704",        
++      "applicationUrl": "http://0.0.0.0:49704",
+      "sslPort": 0
+    }
+  },
+  "profiles": {
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "launchUrl": "weatherforecast",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "backend": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "weatherforecast",
+-      "applicationUrl": "http://localhost:5000",      
++      "applicationUrl": "http://0.0.0.0:5000",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
+```
+### Creación del Dockerfile para el backend de .Net
 ```Dockerfile
-FROM node:16.18.0-alpine
+FROM mcr.microsoft.com/dotnet/sdk:3.1
 
 WORKDIR /app
 
-COPY ["package.json", "package-lock.json*", "./"]
-
-RUN npm install
-
 COPY . .
 
-EXPOSE 5000
-
-CMD npm start
+CMD ["dotnet", "run"]
 ```
 ### Creación de la imagen del backend
 ```bash
@@ -95,4 +125,54 @@ docker build -t frontend .
 ```bash
 docker run -d --name myfrontend  -p 8080:3000 -e API_URI=http://topics-api:5000/api/topics --network lemoncode-challenge frontend
 ```
-# Ejercicio 2 (NOTA: a la espera de solucionar el 1)
+# Ejercicio 2
+## Creación del docker-compose.yml
+```yml
+version: "3.9" 
+services:
+   db:
+     image: mongo:latest
+     container_name: some-mongo
+     volumes:
+       - lemon:/data/db
+     restart: always
+     networks: 
+        - lemoncode-challenge
+   back:
+     depends_on:
+       - db
+     build: ./backend
+     container_name: topics-api
+     restart: always
+     networks: 
+       - lemoncode-challenge
+   front:
+     depends_on:
+       - back
+     build: ./frontend
+     container_name: myfront
+     ports:
+       - "8080:3000"
+     restart: always
+     environment:
+       API_URI: http://topics-api:5000/api/topics
+     networks: 
+       - lemoncode-challenge       
+volumes:
+    lemon: 
+networks:
+    lemoncode-challenge: 
+```
+### Levantamos el entorno
+```bash
+docker-compose up -d
+```
+### Paramos la aplicación (en caso de solo querer pararla y no eliminarla)
+```bash
+docker-compose stop
+```
+### Eliminamos el entorno (incluyendo imágenes y volúmenes)
+ **_NOTA:_**  Usándolo directamente, pararía la aplicación y luego la eliminaría
+```bash
+docker-compose down --rmi all -v
+```

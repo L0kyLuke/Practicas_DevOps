@@ -1,13 +1,7 @@
-FROM node:16.18.0-alpine
+FROM mcr.microsoft.com/dotnet/sdk:3.1
 
 WORKDIR /app
 
-COPY ["package.json", "package-lock.json*", "./"]
-
-RUN npm install --silent
-
 COPY . .
 
-EXPOSE 5000
-
-CMD npm start
+CMD ["dotnet", "run"]

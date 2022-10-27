@@ -1,4 +1,4 @@
-//Módulos 
+//Módulos
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const express = require('express'),
     app = express();
