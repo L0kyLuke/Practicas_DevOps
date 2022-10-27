@@ -124,7 +124,7 @@ docker build -t frontend .
 docker run -d --name myfrontend  -p 8080:3000 -e API_URI=http://topics-api:5000/api/topics --network lemoncode-challenge frontend
 ```
 # Ejercicio 2
-## Creación del docker-compose.yml
+### Creación del docker-compose.yml
 ```yml
 version: "3.9" 
 services:
