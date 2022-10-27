@@ -165,12 +165,14 @@ networks:
 ```bash
 docker-compose up -d
 ```
-### Paramos la aplicación (en caso de solo querer pararla y no eliminarla)
+### Paramos la aplicación y eliminamos el entorno
 ```bash
-docker-compose stop
+docker-compose stop # Solo detiene la aplicación
+
+docker-compose down #Detiene la aplicación y elimina los contenedores
+docker-compose down --rmi all #Detiene la aplicación, elimina los contenedores y las imágenes
 ```
-### Eliminamos el entorno (incluyendo imágenes y volúmenes)
- **_NOTA:_**  Usándolo directamente, pararía la aplicación y luego la eliminaría
+**_Nota:_** Para eliminar volúmenes que no se usen. Con los contenedores de nuestra aplicación activos, ejecutar
 ```bash
-docker-compose down --rmi all -v
+docker volume prune -f  
 ```
