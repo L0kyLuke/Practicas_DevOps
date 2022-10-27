@@ -13,6 +13,16 @@ docker volume create lemon-volume
 ```bash
 docker run -d --name some-mongo --network lemoncode-challenge --mount source=lemon-volume,target=/data/db mongo
 ```
+### Se agregan registros a la base de datos
+```bash
+docker exec -it some-mongo mongosh
+
+> use TopicstoreDb
+
+> db.Topics.insert({Name:"Docker"})
+
+> db.Topics.insert({Name:"Kubernetes"})
+```
 ## Contenedor del Backend
 
 ### Modificación del fichero config.ts del backend
@@ -87,18 +97,6 @@ docker build -t backend .
 ```bash
 docker run -d --name topics-api --network lemoncode-challenge backend
 ```
-### Se agregan registros a la base de datos a través del backend
-```bash
-docker exec -it topics-api bash
-
-curl -d '{"Name":"Devops"}' -H "Content-Type: application/json" -X POST http://localhost:5000/api/topics
-
-curl -d '{"Name":"K8s"}' -H "Content-Type: application/json" -X POST http://localhost:5000/api/topics
-
-curl -d '{"Name":"Docker"}' -H "Content-Type: application/json" -X POST http://localhost:5000/api/topics
-
-curl -d '{"Name":"Prometheus"}' -H "Content-Type: application/json" -X POST http://localhost:5000/api/topics
-```
 ## Contenedor del Frontend
 
 ### Creación del Dockerfile para el frontend de Node.js
@@ -134,7 +132,7 @@ services:
      image: mongo:latest
      container_name: some-mongo
      volumes:
-       - lemon:/data/db
+       - lemon-volume:/data/db
      restart: always
      networks: 
         - lemoncode-challenge
@@ -159,7 +157,7 @@ services:
      networks: 
        - lemoncode-challenge       
 volumes:
-    lemon: 
+    lemon-volume: 
 networks:
     lemoncode-challenge: 
 ```

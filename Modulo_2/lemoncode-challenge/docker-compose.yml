@@ -4,7 +4,7 @@ services:
      image: mongo:latest
      container_name: some-mongo
      volumes:
-       - lemon:/data/db
+       - lemon-volume:/data/db
      restart: always
      networks: 
         - lemoncode-challenge
@@ -29,6 +29,6 @@ services:
      networks: 
        - lemoncode-challenge       
 volumes:
-    lemon: 
+    lemon-volume: 
 networks:
     lemoncode-challenge: 
