@@ -52,8 +52,7 @@ export default {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
--      "applicationUrl": "http://localhost:49704",        
-+      "applicationUrl": "http://0.0.0.0:49704",
+      "applicationUrl": "http://localhost:49704",        
       "sslPort": 0
     }
   },
