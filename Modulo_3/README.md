@@ -167,7 +167,7 @@ spec:
   ports:
   - port: 5432
 ```
-Creamos el svc a partird del fichero `yaml`
+Creamos el svc a partir del fichero `yaml`
 ```shell
 kubectl apply -f svc-bd.yaml
 ```
