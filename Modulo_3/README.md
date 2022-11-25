@@ -438,24 +438,47 @@ kubectl apply -f svc-api.yaml
 Creamos el fichero `Yaml` del `Ingress`
 ```yaml
 #ingress.yaml
- apiVersion: networking.k8s.io/v1
- kind: Ingress
- metadata:
- name: api
- labels:
-     app: api
- annotations:
-     nginx.ingress.kubernetes.io/ssl-redirect: "true"
- spec:
- rules:
- - host: testjose.xyz
-     http:
-     paths:
-     - pathType: Prefix
-         path: "/front"
-         backend:
-         service:
-             name: todo-app-svc
-             port:
-             number: 80
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: todo-app
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: testjose.xyz
+      http:
+        paths:        
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: todo-front-svc
+                port:
+                  number: 80    
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: todo-api-svc
+                port:
+                  number: 3000  
+```
+Creamos el `Ingress` a partir del fichero `Yaml`
+```shell
+kubectl apply -f ingress.yaml
+```
+Obtenemos la IP del `Ingress`
+```shell
+kubectl get ingress
+# Obtenemos IP 192.168.49.2
+```
+Añadimos `testjose.xyz` al fichero /etc/hosts
+```shell
+sudo nano /etc/hosts
+# Añadimos la linea: 192.168.49.2  testjose.xyz
+```
+Probamos la conexión a la app
+```shell
+curl -v testjose.xyz # front
+curl -v testjose.xyz/api # back
 ```
