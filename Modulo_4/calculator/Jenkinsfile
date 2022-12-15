@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage('stage-1') {
+        stage('Checkout') {
             steps {
                 echo "This is the build number $BUILD_NUMBER"
             }
