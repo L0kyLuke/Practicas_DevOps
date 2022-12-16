@@ -25,8 +25,7 @@ Posteriormente lo cargamos desde localhost:8080 e instalamos los plugins recomen
         stages {
             stage('Checkout') {
                 steps {
-                    git branch: 'main',
-        url: 'https://github.com/L0kyLuke/lab_mod_4.git'
+                    git url: 'https://github.com/L0kyLuke/lab_mod_4.git', branch: 'main'
                 }
             }
             stage('Compile') {
