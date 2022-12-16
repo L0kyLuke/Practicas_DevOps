@@ -64,3 +64,35 @@ Posteriormente lo cargamos desde localhost:8080 e instalamos los plugins recomen
    - Branch Specifier: */main
    - Script Path: Jenkinsfile
   
+  ## 2. Modificar la pipeline para que utilice la imagen Docker de Gradle como build runner
+
+  1. Instalamos los plugins `Docker` y `Docker Pipeline` en Jenkins
+   
+2. Modificamos la pipeline anterior
+    ```groovy
+        pipeline {
+        agent {
+            docker {
+                image 'gradle:6.6.1-jre14-openj9'
+                }
+        }
+
+        stages {
+            stage('Checkout') {
+                steps {
+                    git url: 'https://github.com/L0kyLuke/lab_mod_4.git', branch: 'main'
+                }
+            }
+            stage('Compile') {
+                steps {
+                    sh './gradlew compileJava'
+                }
+            }
+            stage('Unit Tests') {
+                steps {
+                    sh './gradlew test'
+                }
+            }
+        }
+    }
+    ```
