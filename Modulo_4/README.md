@@ -1,13 +1,14 @@
-# Ejercicio 1
+# Ejercicios Jenkins
+## Ejercicio 1
 
-## Instalar Jenkins en local con dependencias necesarias
+### Instalar Jenkins en local con dependencias necesarias
 Para la ejecución en local construimos una imagen a partir del Dockerfile aportado y ejecutamos el contenedor de Jenkins
 ```shell
 docker run -p 8080:8080 -p 50000:50000 --restart=on-failure jenkins:latest
 ```
 Posteriormente lo cargamos desde localhost:8080 e instalamos los plugins recomendados
 
-## 1. CI/CD de una Java + Gradle
+### 1. CI/CD de una Java + Gradle
 
 1. Creamos el repositorio en GitHub para la app y lo clonamos
    
@@ -64,9 +65,9 @@ Posteriormente lo cargamos desde localhost:8080 e instalamos los plugins recomen
    - Branch Specifier: */main
    - Script Path: Jenkinsfile
   
-  ## 2. Modificar la pipeline para que utilice la imagen Docker de Gradle como build runner
+### 2. Modificar la pipeline para que utilice la imagen Docker de Gradle como build runner
 
-  1. Instalamos los plugins `Docker` y `Docker Pipeline` en Jenkins
+1. Instalamos los plugins `Docker` y `Docker Pipeline` en Jenkins
    
 2. Modificamos la pipeline anterior
     ```groovy
@@ -96,3 +97,20 @@ Posteriormente lo cargamos desde localhost:8080 e instalamos los plugins recomen
         }
     }
     ```
+    # CONSEGUIR INSTALAR DOCKER BIEN EN JENKINS YA QUE NO LO ENCUENTRA
+
+
+# Ejercicios GitLab
+## Ejercicio 1    
+
+### 1. CI/CD de una aplicación spring
+
+1. Creamos un nuevo proyecto en blanco en GitLab, lo llamamos `gitlab-springapp` y lo hacemos público
+   
+2. Lo clonamos en local
+```shell
+git clone http://gitlab.local:8888/bootcamp/gitlab-springapp.git
+```
+1. Copiamos los ficheros del proyecto springapp a /gitlab-springapp y subimos los cambios
+```shell
+```
