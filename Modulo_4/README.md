@@ -179,3 +179,4 @@ deploy:prod:
 5. Al comprobar en localhost:8081 que funciona corréctamente, hacemos el `merge request` para pasarlo a master yendo a `Merge requests > Create merge request > Merge`
    
 6. Tras la `merge request` ejecutamos la app en localhost:8080
+7. 
