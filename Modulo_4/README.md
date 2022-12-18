@@ -108,9 +108,9 @@ Posteriormente lo cargamos desde localhost:8080 e instalamos los plugins recomen
 1. Creamos un nuevo proyecto en blanco en GitLab, lo llamamos `gitlab-springapp` y lo hacemos público
    
 2. Lo clonamos en local
-```shell
-git clone http://gitlab.local:8888/bootcamp/gitlab-springapp.git
-```
+    ```shell
+    git clone http://gitlab.local:8888/bootcamp/gitlab-springapp.git
+    ```
 3. Copiamos los ficheros del proyecto springapp a /gitlab-springapp y subimos los cambios al repositorio
    
 4. Creamos la rama `develop` y nos vamos a `CI/CD > Editor` para crear la siguiente pipeline:
