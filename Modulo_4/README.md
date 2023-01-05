@@ -1,5 +1,4 @@
 # Ejercicios Jenkins
-## Ejercicio 1
 
 ### Instalar Jenkins en local con dependencias necesarias
 Para la ejecución en local construimos una imagen a partir del Dockerfile aportado y ejecutamos el contenedor de Jenkins
@@ -8,7 +7,7 @@ docker run -p 8080:8080 -p 50000:50000 --restart=on-failure jenkins:latest
 ```
 Posteriormente lo cargamos desde localhost:8080 e instalamos los plugins recomendados
 
-### 1. CI/CD de una Java + Gradle
+## 1. CI/CD de una Java + Gradle
 
 1. Creamos el repositorio en GitHub para la app y lo clonamos
    
@@ -65,7 +64,7 @@ Posteriormente lo cargamos desde localhost:8080 e instalamos los plugins recomen
    - Branch Specifier: */main
    - Script Path: Jenkinsfile
   
-### 2. Modificar la pipeline para que utilice la imagen Docker de Gradle como build runner
+## 2. Modificar la pipeline para que utilice la imagen Docker de Gradle como build runner
 
 1. Instalamos los plugins `Docker` y `Docker Pipeline` en Jenkins
    
@@ -100,10 +99,9 @@ Posteriormente lo cargamos desde localhost:8080 e instalamos los plugins recomen
     # CONSEGUIR INSTALAR DOCKER BIEN EN JENKINS YA QUE NO LO ENCUENTRA
 
 
-# Ejercicios GitLab
-## Ejercicio 1    
+# Ejercicios GitLab 
 
-### 1. CI/CD de una aplicación spring
+## 1. CI/CD de una aplicación spring
 
 1. Creamos un nuevo proyecto en blanco en GitLab, lo llamamos `gitlab-springapp` y lo hacemos público
    
@@ -179,3 +177,65 @@ Posteriormente lo cargamos desde localhost:8080 e instalamos los plugins recomen
 5. Al comprobar en localhost:8081 que funciona corréctamente, hacemos el `merge request` para pasarlo a master yendo a `Merge requests > Create merge request > Merge`
    
 6. Tras la `merge request` ejecutamos la app en localhost:8080
+
+# Ejercicios GitHub Actions
+
+## 1. Crea un workflow CI para el proyecto de frontend
+
+1. Copiamos *.start-code/hangman-front* al directorio raíz del proyecto
+   
+2. Creamos el fichero `YAML` que contendrá el workflow que realice la build y unity tests al hacer `pull request`
+   
+    ```yaml
+    name: CI-front
+    on:
+    workflow_dispatch:
+    pull_request:
+      branches: [ main ]
+
+    jobs:
+    build:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
+        - uses: actions/setup-node@v3
+          with:
+            node-version: 16
+            cache: 'npm'
+            cache-dependency-path: hangman-front/package-lock.json
+        - name: build
+          working-directory: ./hangman-front
+          run: |
+            npm ci
+            npm run build --if-present
+    test:
+      runs-on: ubuntu-latest
+      needs: build
+      steps:
+        - uses: actions/checkout@v3
+        - uses: actions/setup-node@v3
+          with:
+            node-version: 16
+        - name: test
+          working-directory: ./hangman-front
+          run: |
+            npm ci
+            npm test
+    ```
+
+3. Creamos una nueva rama y subimos los cambios a GitHub
+   ```sh
+   git checkout -b added-workflow 
+   git push -u origin added-workflow
+   git add .
+   git commit -m "added ci file"
+   git push
+   ```
+4. Nos vamos a GitHub a la raíz al principal de nuestro repositorio y seleccionamos **Compare & pull request** y posteriormente **Create pull request**, esto ejecutará el workflow y podemos comprobar su estado desde la opción *Actions* del repositorio
+   
+5. Tras ejecutar el workflow comprobamos que el test ha dado error, por lo que observamos el log y vemos que en el código de la app hay que cambiar en *hangman-front/src/components/start-game.spec.tsx*
+    ```diff
+    -   expect(items).toHaveLength(1);
+    +   expect(items).toHaveLength(2);
+    ```
+6. Volvemos a subir los cambios a GitHub y volverá a ejecutarse el workflow, pudiendo comprobar que se ejecuta tanto *build* como el *test* perfectamente
