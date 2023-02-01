@@ -15,9 +15,9 @@ Posteriormente lo cargamos desde localhost:8080 e instalamos los plugins recomen
     git clone https://github.com/L0kyLuke/lab_mod_4.git
     ```
 
-2. Posteriormente copiamos los ficheros en el repositorio local
+2. Posteriormente copiamos `gradle.Dockerfile` y todo el contenido de la carpeta `/calculator` en el directorio raíz del repositorio local
 
-3. Creamos el Jenkinsfile en el directorio raíz de la app
+3. Creamos el Jenkinsfile en el directorio raíz del repositorio local
     ```groovy
     pipeline {
         agent any
@@ -41,12 +41,12 @@ Posteriormente lo cargamos desde localhost:8080 e instalamos los plugins recomen
         }
     }
     ```
-4. Le doy permisos de ejecución a `gradlew`
+4. Le doy permisos de ejecución al fichero `gradlew`
     ```shell
     chmod +x gradlew
     ```
 
-5. Al usar WSL para evitar el error "/usr/bin/env: ‘bash\r’: No such file or directory" al ejecutar `gradlew` uso el comando `sed` sobre gradlew
+5. Al usar WSL para evitar el error "/usr/bin/env: ‘bash\r’: No such file or directory" al ejecutar `gradlew`, uso el comando `sed` sobre gradlew
     ```shell
     sed -i 's/\r$//' gradlew
     ```
@@ -64,29 +64,74 @@ Posteriormente lo cargamos desde localhost:8080 e instalamos los plugins recomen
    - Branch Specifier: */main
    - Script Path: Jenkinsfile
   
+## 2. Modificar la pipeline para que utilice la imagen Docker de Gradle como build runner
+
+1. Nos instalamos los plugins de `Docker` y `Docker Pipeline` desde `Dashboard > Manage Jenkins > Plugin Manager > Available plugins`
+
+2. Para usar la imagen `gradle:6.6.1-jre14-openj9` de **Docker** como build runner. Modificamos el `Jenkinsfile` anterior
+
+```diff
+pipeline {
++   agent {
++     docker { image 'gradle:6.6.1-jre14-openj9' }
++}
+-   agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git url: 'https://github.com/L0kyLuke/lab_mod_4.git', branch: 'main'
+            }
+        }
+        stage('Compile') {
+            steps {
+                sh './gradlew compileJava'
+            }
+        }
+        stage('Unit Tests') {
+            steps {
+                sh './gradlew test'
+            }
+        }
+    }
+}
+```
+3. Subimos los cambios al repositorio
+    ```shell
+    git add .
+    git commit -m "using docker runner"
+    git push
+    ```
+
+4. Desde Jenkins volvemos a ejecutar la pipeline con `Build Now` y comprobamos que se ejecuta correctamente
 
 # Ejercicios GitLab 
 
 ## 1. CI/CD de una aplicación spring
 
-1. Creamos un nuevo proyecto en blanco en GitLab, lo llamamos `gitlab-springapp` y lo hacemos público
+1. Creamos un nuevo proyecto en blanco en GitLab, lo llamamos `gitlab-springapp` y lo dejamos privado
    
 2. Lo clonamos en local
     ```shell
     git clone http://gitlab.local:8888/bootcamp/gitlab-springapp.git
     ```
 3. Copiamos los ficheros del proyecto springapp a /gitlab-springapp y subimos los cambios al repositorio
+    ```shell
+    git add .
+    git commit -m "adding files springapp"
+    git push
+    ```
    
 4. Creamos la rama `develop` y nos vamos a `CI/CD > Editor` para crear la siguiente pipeline:
     ```yaml
-    # Declaramos las stages
+     # Declaramos las stages
     stages:
       - maven:build
       - maven:test
       - docker:build
       - deploy
 
-    # Hacemos la compilación de la app
+     # Hacemos la compilación de la app
     maven:build:
       image: maven:3.6.3-jdk-8
       stage: maven:build
@@ -95,7 +140,7 @@ Posteriormente lo cargamos desde localhost:8080 e instalamos los plugins recomen
         paths:
           - target/*.jar
 
-    # Realizamos el test
+     # Realizamos el test
     maven:test: 
       image: maven:3.6.3-jdk-8
       stage: maven:test
@@ -104,7 +149,7 @@ Posteriormente lo cargamos desde localhost:8080 e instalamos los plugins recomen
         paths:
           - target/*.jar
 
-    # Generamos la imagen de Docker a partir del Dockerfile
+     # Generamos la imagen de Docker a partir del Dockerfile
     docker:build: 
       stage: docker:build
       before_script:
@@ -116,7 +161,7 @@ Posteriormente lo cargamos desde localhost:8080 e instalamos los plugins recomen
         # Hacemos push a nuestro Container Registry
         - docker push $CI_REGISTRY/$CI_PROJECT_PATH/gitlab-springapp:$CI_COMMIT_SHA 
       
-    # Utilizamos la imagen creada y la hacemos correr en local
+     # Utilizamos la imagen creada y la hacemos correr en local
     deploy:test:
       stage: deploy
       before_script:
@@ -128,7 +173,7 @@ Posteriormente lo cargamos desde localhost:8080 e instalamos los plugins recomen
         - develop
       environment: test
 
-    # Hacemos el deploy en producción tras hacer una merge request y ejecutarlo en master lo cual nos desplegará la app en local en el puerto 8080
+     # Hacemos el deploy en producción tras hacer una merge request y ejecutarlo en master lo cual nos desplegará la app en local en el puerto 8080
     deploy:prod:
       stage: deploy
       before_script:
@@ -140,9 +185,13 @@ Posteriormente lo cargamos desde localhost:8080 e instalamos los plugins recomen
         - master
       environment: prod
     ```
-5. Al comprobar en localhost:8081 que funciona corréctamente, hacemos el `merge request` para pasarlo a master yendo a `Merge requests > Create merge request > Merge`
+5. Hacemos commit de los cambios y vemos que la pipeline ha funcionado correctamente
    
-6. Tras la `merge request` ejecutamos la app en localhost:8080
+6. Al estar en la rama *develop* el job ejecutado es el deploy test, por lo que nos conectamos a `localhost:8081`, viendo que la app funciona corréctamente
+   
+7. Hacemos el `merge request` para pasarlo a la rama *master* yendo a `Merge requests > Create merge request > Create merge request > Merge`
+   
+8. Tras la `merge request` y haberse ejecutado el job del deploy en producción, ejecutamos la app en `localhost:8080`
 
 # Ejercicios GitHub Actions
 
