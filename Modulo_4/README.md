@@ -193,6 +193,28 @@ pipeline {
    
 8. Tras la `merge request` y haberse ejecutado el job del deploy en producción, ejecutamos la app en `localhost:8080`
 
+## 2. Crear un usuario nuevo y probar que no puede acceder al proyecto anteriormente creado
+
+1. Nos logueamos como *Administrador* y vamos a `Admin > Users > New user` y lo llamamos `ejercicio`
+   
+2. Vamos al grupo *bootcamp*, a `Group information > Members > Invite members`. Seleccionamos `ejercicio` y le vamos dando los roles:
+   
+   - `Guest`:
+     - **Permite:**
+     - **No permite:** hacer commit, ejecutar pipeline manualmente, push and pull del repo, merge request, acceder a la administración del repo
+  
+   - `Reporter`:
+     - **Permite:** pull
+     - **No permite:** hacer commit, ejecutar pipeline manualmente, push, merge request, acceder a la administración del repo
+  
+   - `Developer`:
+     - **Permite:** hacer commit desde otra rama que no sea master, ejecutar pipeline manualmente desde otra rama que no sea master, push desde otra rama que no sea master, crear la solicitud de merge request pero no ejecutarla
+     - **No permite:** acceder a la administración del repo
+  
+   - `Maintainer`:
+     - **Permite:** hacer commit, ejecutar pipeline manualmente, push and pull del repo, merge request, acceder a la administración del repo
+     - **No permite:**
+
 # Ejercicios GitHub Actions
 
 ## 1. Crea un workflow CI para el proyecto de frontend
@@ -204,38 +226,37 @@ pipeline {
     ```yaml
     name: CI-front
     on:
-    workflow_dispatch:
-    pull_request:
-      branches: [ main ]
+      pull_request:
+        branches: [ main ]
 
     jobs:
-    build:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v3
-        - uses: actions/setup-node@v3
-          with:
-            node-version: 16
-            cache: 'npm'
-            cache-dependency-path: hangman-front/package-lock.json
-        - name: build
-          working-directory: ./hangman-front
-          run: |
-            npm ci
-            npm run build --if-present
-    test:
-      runs-on: ubuntu-latest
-      needs: build
-      steps:
-        - uses: actions/checkout@v3
-        - uses: actions/setup-node@v3
-          with:
-            node-version: 16
-        - name: test
-          working-directory: ./hangman-front
-          run: |
-            npm ci
-            npm test
+      build:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v3
+          - uses: actions/setup-node@v3
+            with:
+              node-version: 16
+              cache: 'npm'
+              cache-dependency-path: hangman-front/package-lock.json
+          - name: build
+            working-directory: ./hangman-front
+            run: |
+              npm ci
+              npm run build --if-present
+      test:
+        runs-on: ubuntu-latest
+        needs: build
+        steps:
+          - uses: actions/checkout@v3
+          - uses: actions/setup-node@v3
+            with:
+              node-version: 16
+          - name: test
+            working-directory: ./hangman-front
+            run: |
+              npm ci
+              npm test
     ```
 
 3. Creamos una nueva rama y subimos los cambios a GitHub
@@ -254,3 +275,152 @@ pipeline {
     +   expect(items).toHaveLength(2);
     ```
 6. Volvemos a subir los cambios a GitHub y volverá a ejecutarse el workflow, pudiendo comprobar que se ejecuta tanto *build* como el *test* perfectamente
+
+## 2. Crea un workflow CD para el proyecto de frontend
+
+1. Creamos el `Dockerfile` en la raiz del proyecto
+   ```dockerfile
+    FROM node:lts-alpine as app
+
+    WORKDIR /app
+
+    COPY dist/ .
+
+    COPY package.json .
+
+    COPY package-lock.json .
+
+    ENV NODE_ENV=production
+
+    RUN npm install
+   ```
+   
+2. Creamos el fichero `YAML` que contendrá el workflow que se dispare manualmente y cree la imagen de Docker y la publique en el Container Registry de GitHub
+   
+    ```yaml
+    name: Docker-manual
+    on:
+      workflow_dispatch:
+
+    jobs:
+      build:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v3
+          - uses: actions/setup-node@v3
+            with:
+              node-version: 16
+              cache: 'npm'
+              cache-dependency-path: hangman-front/package-lock.json
+          - name: build
+            working-directory: ./hangman-front
+            run: |
+              npm ci
+              npm run build --if-present
+      test:
+        runs-on: ubuntu-latest
+        needs: build
+        steps:
+          - uses: actions/checkout@v3
+          - uses: actions/setup-node@v3
+            with:
+              node-version: 16
+          - name: test
+            working-directory: ./hangman-front
+            run: |
+              npm ci
+              npm test
+
+      login-build-push:
+        runs-on: ubuntu-latest
+        needs: test
+        steps:
+          -
+            name: Login to GitHub Container Registry
+            uses: docker/login-action@v2
+            with:
+              registry: ghcr.io
+              username: ${{ github.repository_owner }}
+              password: ${{ secrets.GITHUB_TOKEN }}   
+          -
+            name: Set up Docker Buildx
+            uses: docker/setup-buildx-action@v2    
+          -
+            name: Build and push
+            uses: docker/build-push-action@v4
+            env:
+              REPOSITORY: "gh-actions"
+            with:
+              context: "{{defaultContext}}:hangman-front"
+              push: true
+              tags: ghcr.io/l0kyluke/gh-actions:latest
+    ```
+
+3. Subimos los cambios
+   ```sh
+   git add .
+   git commit -m "exercise 2"
+   git push
+   ```
+4. Desde nuestro repositorio en **GitHub** ejecutamos la *GitHub Action* de forma manual
+
+## 3. Crea un workflow que ejecute tests e2e
+
+1. Creamos un nuevo repositorio en **GitHub** llamado *gh-e2e* y lo clonamos al local
+    ```sh
+    git clone https://github.com/L0kyLuke/gh-e2e.git
+    ```
+2. Copiamos el contenido de la carpeta *hangman-e2e/e2e/* al directorio raíz y comiteamos los cambios
+    ```sh
+    git add .
+    git commit -m "ej3"
+    git push
+    ```
+3. Creamos el `YAML` con el workflow que ejecute los tests usando `Cypress action`
+    ```yml
+    name: End-to-end tests
+    on:
+      push:
+    jobs:
+      build:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v3
+          - uses: actions/setup-node@v3
+            with:
+              node-version: 16
+              cache: 'npm'
+              cache-dependency-path: ./package-lock.json
+          - name: build
+            working-directory: ./
+            run: |
+              npm ci
+              npm run build --if-present
+          - uses: actions/upload-artifact@v3
+            with:
+              name: build-code
+              path: cypress/
+      e2e-test:
+        runs-on: ubuntu-latest
+        needs: build
+        steps: 
+            - uses: actions/checkout@v3
+            - uses: actions/download-artifact@v3
+              with:
+                name: build-code
+                path: cypress/
+            - name: Cypress run
+              run: |
+                docker run -d -p 3001:3000 jaimesalas/hangman-api
+                docker run -d -p 8080:8080 -e API_URL=http://localhost:3001 jaimesalas/hangman-front
+            - uses: cypress-io/github-action@v5
+              with:
+                project: .
+                browser: chrome
+    ```
+4. Comiteamos los cambios y al hacer push se ejecutará el workflow realizando el correspondiente e2e-test
+    ```sh
+    git add .
+    git commit -m "ej3"
+    git push
+    ```
