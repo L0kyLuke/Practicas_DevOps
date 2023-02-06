@@ -373,7 +373,7 @@ pipeline {
 2. Copiamos el contenido de la carpeta *hangman-e2e/e2e/* al directorio raíz y comiteamos los cambios
     ```sh
     git add .
-    git commit -m "ej3"
+    git commit -m "adding files"
     git push
     ```
 3. Creamos el `YAML` con el workflow que ejecute los tests usando `Cypress action`
@@ -418,7 +418,7 @@ pipeline {
                 project: .
                 browser: chrome
     ```
-4. Comiteamos los cambios y al hacer push se ejecutará el workflow realizando el correspondiente e2e-test
+4. Comiteamos los cambios y al hacer push se ejecutará el workflow, que al finalizar, en su sumario se puede observar el resultado del test
     ```sh
     git add .
     git commit -m "ej3"
