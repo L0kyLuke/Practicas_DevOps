@@ -215,6 +215,35 @@ pipeline {
      - **Permite:** hacer commit, ejecutar pipeline manualmente, push and pull del repo, merge request, acceder a la administración del repo
      - **No permite:**
 
+## 3. Crear un nuevo repositorio, que contenga una pipeline, que clone otro proyecto, springapp anteriormente creado
+
+1. Nos logueamos con el usuario `developer1` y creamos un nuevo proyecto en blanco en GitLab, lo llamamos `cloner` y lo dejamos privado
+
+2. Creamos la pipeline que instalará **Git** y clonará el proyecto `gitlab-springapp`. Posteriormente entrará en la carpeta y hará un `ls` para verificar que se ha clonado correctamente
+```yml
+stages:          
+  - clone
+
+build-job:       
+  stage: clone
+  before_script:
+  - apk update && apk add git
+  - git --version
+  script:
+    - git clone http://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.local:8888/bootcamp/gitlab-springapp.git
+    - cd gitlab-springapp
+    - ls
+```
+
+### ¿Qué ocurre si el repo que estoy clonando no estoy cómo miembro?
+
+1. Creamos un nuevo usuario llamado `prueba` que no forma parte del grupo `bootcamp` que es donde se encuentra el proyecto `gitlab-springapp`
+   
+2. Creamos la pipeline anterior para ver si nos deja clonar el proyecto `gitlab-springapp` con un usuario que no forme parte del grupo `bootcamp`. La pipeline falla, por lo que añadimos a nuestro usuario al proyecto primero el rol de `Guest` y luego de `Reporter`
+   
+Al ejecutar la pipeline con ambos roles e comprueba, que efectivamente como dice la documentación de **GitLab**, hay que formar parte del *grupo* o *proyecto* para poder clonar el repositorio, y mínimo tener permisos de `Reporter`
+
+
 # Ejercicios GitHub Actions
 
 ## 1. Crea un workflow CI para el proyecto de frontend
