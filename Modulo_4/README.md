@@ -124,7 +124,7 @@ pipeline {
    
 4. Creamos la rama `develop` y nos vamos a `CI/CD > Editor` para crear la siguiente pipeline:
     ```yaml
-     # Declaramos las stages
+     # Declaramos las stages 
     stages:
       - maven:build
       - maven:test
@@ -226,9 +226,11 @@ stages:
 
 build-job:       
   stage: clone
+# Instalamos git
   before_script:
   - apk update && apk add git
   - git --version
+# Clonamos el repositorio  
   script:
     - git clone http://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.local:8888/bootcamp/gitlab-springapp.git
     - cd gitlab-springapp
