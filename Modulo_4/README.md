@@ -241,9 +241,9 @@ build-job:
 
 1. Creamos un nuevo usuario llamado `prueba` que no forma parte del grupo `bootcamp` que es donde se encuentra el proyecto `gitlab-springapp`
    
-2. Creamos la pipeline anterior para ver si nos deja clonar el proyecto `gitlab-springapp` con un usuario que no forme parte del grupo `bootcamp`. La pipeline falla, por lo que añadimos a nuestro usuario al proyecto primero el rol de `Guest` y luego de `Reporter`
+2. Creamos la pipeline anterior para ver si nos deja clonar el proyecto `gitlab-springapp` con un usuario que no forme parte del grupo `bootcamp`. La pipeline falla, por lo que añadimos nuestro usuario al proyecto, primero con el rol de `Guest` y luego con el de reporter `Reporter`
    
-Al ejecutar la pipeline con ambos roles e comprueba, que efectivamente como dice la documentación de **GitLab**, hay que formar parte del *grupo* o *proyecto* para poder clonar el repositorio, y mínimo tener permisos de `Reporter`
+Al ejecutar la pipeline con ambos roles se comprueba, que efectivamente como dice la documentación de **GitLab**, hay que formar parte del *grupo* o *proyecto* para poder clonar el repositorio, y mínimo tener rol de `Reporter`
 
 
 # Ejercicios GitHub Actions
